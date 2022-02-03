@@ -1,0 +1,20 @@
+<html>
+
+<body>
+
+    <div>
+        <h1>Clicked: {{value}} times</h1>
+        <button onclick="onClick()">Click me</button>
+    </div>
+
+    <script src="../build/jsquick.min.js"></script>
+    <script>
+        const [getValue, setValue] = bindState('value', 0);
+
+        function onClick() {
+            setValue(getValue() + 1)
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,3 @@
+- [State](/docs/state.md) - state system inspired by react hooks
+- [Helpers](/docs/helpers.md) - some things that aim to help you when building a website
+- [Queries](/docs/queries.md) - JQuery like queries

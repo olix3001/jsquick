@@ -20,7 +20,11 @@ class JSQ extends Function {
         let sel = document.querySelectorAll(selector)
         if (sel.length == 0) return null
         else if (sel.length == 1) return new JSQQueryElement(sel[0])
-        else return new QueryElementList(sel.map(e => new JSQQueryElement(e)))
+        else {
+            let list = [];
+            for (let s of sel) list.push(new JSQQueryElement(s))
+            return new JSQQueryElementList(list)
+        }
     }
 }
 

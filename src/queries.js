@@ -5,17 +5,64 @@ class JSQQueryElement {
 
     on(event, callback) {
         this.elem.addEventListener(event, callback)
+        return this
     }
 
     css(prop, val) {
         this.elem.style.setProperty(prop, val)
+        return this
+    }
+
+    attr(name, val) {
+        this.elem.setAttribute(name, val)
+        return this
+    }
+
+    add(...elem) {
+        for (let e of elem) {
+            e = e.elem || e
+            this.elem.appendChild(e)
+        }
+        return this
+    }
+
+    click() {
+        this.elem.click()
+        return this
+    }
+
+    text(value) {
+        this.elem.innerText = value
+        return this
+    }
+
+    addClass(name) {
+        this.elem.classList.add(name)
+        return this
+    }
+
+    remClass(name) {
+        this.elem.classList.remove(name)
+        return this
+    }
+
+    id(value) {
+        this.elem.id = value
+        return this
+    }
+
+    focus() {
+        this.elem.focus()
+        return this
     }
 }
 
 class JSQ extends Function {
     constructor() {
         super('...args', 'return $.call(...args)')
+        this.body = new JSQQueryElement(document.querySelector('body'))
     }
+
     call(selector) {
         let sel = document.querySelectorAll(selector)
         if (sel.length == 0) return null
@@ -25,6 +72,54 @@ class JSQ extends Function {
             for (let s of sel) list.push(new JSQQueryElement(s))
             return new JSQQueryElementList(list)
         }
+    }
+
+    download(filename, content, type) {
+        type = type || 'file'
+
+        let href = '';
+        if (type == 'text') {
+            href = `data:text/plain;charset=utf-8,` + encodeURIComponent(content)
+        } else if (type == 'file') {
+            href = content
+        }
+
+        $.create('a').attr('href', href).attr('download', filename).click()
+    }
+
+    create(type, options) {
+        return new JSQQueryElement(document.createElement(type, options))
+    }
+
+    request(url, method, body, options) {
+        return new Promise((resolve, reject) => {
+            let o = {
+                method: method,
+                ...options
+            };
+            if (body != null && Object.keys(body).length != 0) o.body = body
+            fetch(url, o).then(resolve).catch(reject)
+        });
+    }
+
+    get(url, options) {
+        return this.request(url, 'GET', {}, options)
+    }
+
+    post(url, body, options) {
+        return this.request(url, 'POST', body, options)
+    }
+
+    put(url, body, options) {
+        return this.request(url, 'PUT', body, options)
+    }
+
+    delete(url, body, options) {
+        return this.request(url, 'DELETE', body, options)
+    }
+
+    patch(url, body, options) {
+        return this.request(url, 'PATCH', body, options)
     }
 }
 

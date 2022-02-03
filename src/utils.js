@@ -15,7 +15,7 @@ function JSQuuid() { // Public Domain/MIT
 }
 
 const JSQreplaceInDoc = (from, to) => {
-    document.body.innerHTML = document.body.innerHTML.replace(from, to);
+    document.body.innerHTML = document.body.innerHTML.replaceAll(from, to);
 }
 const JSQsetClassContent = (className, value) => {
     for (let e of document.getElementsByClassName(className)) {

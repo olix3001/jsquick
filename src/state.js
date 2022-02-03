@@ -43,7 +43,7 @@ const bindAttr = (type, name, defaultValue, onChange) => {
 
 
 const JSQReplaceAllAttrs = (attr, attrName, binding, e, value) => {
-    let attrV = attr.value.replace(binding, value)
+    let attrV = attr.value.replaceAll(binding, value)
 
     const m = e.attributes.getNamedItem(attrName).value.matchAll(/\{\{\w+\}\}/g);
     let r = m.next();

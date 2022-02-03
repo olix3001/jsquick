@@ -1,0 +1,32 @@
+<html>
+
+<body>
+
+    <div>
+
+    </div>
+
+    <script src="../build/jsquick.min.js"></script>
+    <script>
+        let c = buildTag('div', {}, {
+            textBox: ['input', {
+                placeholder: 'Search...'
+            }, ''],
+
+            searchButton: ['button', {
+                onclick: () => $.download('test.txt', 'Some text', 'text')
+            }, 'Search'],
+
+            div: ['div', {
+                style: 'background-color: red'
+            }, {
+                    text: ['p', {
+                        style: 'color: blue'
+                    }, 'TEST']
+                }]
+        })
+        $('body').add(c)
+    </script>
+</body>
+
+</html>

@@ -18,3 +18,7 @@ where `click` can be replaced with any event
 $('selector').css('background-color', 'red')
 ```
 where both arguments can be replaced with any property and value that you want
+
+## Under construction
+This part is stull under construction (you can add it with a pull request :D)
+so to see more methods use `JSQQueryElement.prototype` in developer console

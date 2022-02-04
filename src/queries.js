@@ -34,9 +34,14 @@ class JSQQueryElement {
         return this
     }
 
-    click() {
-        this.elem.click()
-        return this
+    click(event) {
+        if (event != undefined) {
+            this.elem.onclick = event
+            return this
+        } else {
+            this.elem.click()
+            return this
+        }
     }
 
     text(value) {
@@ -81,6 +86,8 @@ class JSQQueryElement {
     copy() {
         return new JSQQueryElement($.clone(this.elem, this.elem.tagName))
     }
+
+    get size() { return 1 }
 }
 
 class JSQ extends Function {
@@ -156,6 +163,7 @@ class JSQ extends Function {
             }
         return newTag.elem
     }
+
 }
 
 const $ = new JSQ()

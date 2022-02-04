@@ -19,13 +19,19 @@ class JSQComponent {
     }
 
     JSQbind(tag, attributes) { this.JSQtag = tag; this.JSQattributes = attributes }
-    reload() {
-        JSQCreplaceDifferences(this.JSQtag, this.render(this.JSQattributes).elem)
+    reload(force) {
+        if (force) this.JSQtag = this.render(this.JSQattributes).elem
+        this.JSQtag = JSQCreplaceDifferences(this.JSQtag, this.render(this.JSQattributes).elem)
     }
 
     render(attributes) {
         return $.create('div')
     }
+
+    once() {
+
+    }
+
 }
 
 const JSQCreplaceDifferences = (tag, to) => {
@@ -39,15 +45,18 @@ const JSQCreplaceDifferences = (tag, to) => {
         }
     }
 
+    let temp = tag;
     for (let i = 0; i < to.childNodes.length; ++i) {
 
         // html
         let old = tag.childNodes[i] || null
-        if (old == null) { tag.innerHTML = to.innerHTML; break; }
+        if (old == null) { tag.parentNode.replaceChild(to, tag); return to; }
         else
-            JSQCreplaceDifferences(tag.childNodes[i], to.childNodes[i])
+            temp = JSQCreplaceDifferences(tag.childNodes[i], to.childNodes[i])
 
     }
 
-    if (tag.innerHTML != to.innerHTML) tag.innerHTML = to.innerHTML
+    if (tag.innerHTML != to.innerHTML) { tag.parentNode.replaceChild(to, tag); return to; }
+
+    return temp;
 }

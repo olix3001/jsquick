@@ -16,12 +16,14 @@
                 })
             }
 
-            render({ name, children, _index }) {
+            render({ name, children, _index, isc }) {
                 let textBox = $.create('input').attr({
                     placeholder: `Search bar ${_index} ${this.state.value}`
-                }).on('input', () => this.state.btnText = textBox.value());
-                console.log(this.state)
-                return $.create('div')
+                }).on('input', e => this.state.btnText = e.target.value);
+
+                let t = $.create('div')
+
+                return t
                     .add(textBox)
                     .add($.create('button')
                         .text(this.state.btnText)

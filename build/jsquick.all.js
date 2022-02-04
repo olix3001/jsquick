@@ -39,7 +39,7 @@ class JSQC {
 
         const name = component.prototype.constructor.name
 
-        let n = $(name).size
+        let n = $(name.toLowerCase()).size
         for (let i = 0; i < n; ++i) {
             const instance = new component();
             let tag = JSQfindTag(name)
@@ -48,19 +48,38 @@ class JSQC {
             let attributes = {
                 children: tag.childNodes,
                 idl: {},
-                idg: key => { let u = `JSQC_${JSQuuid()}`; attributes.idl[key] = u; return u },
+                idg: key => { if (attributes.idl[key] != null) return attributes.idl[key]; else { let u = `JSQC_${JSQuuid()}`; attributes.idl[key] = u; return u } },
                 _index: i
             }
             for (let at of Array.from(tag.attributes)) {
                 attributes[at.name] = at.value
             }
 
+            instance.once(attributes)
             let nt = instance.render(attributes).elem;
             instance.JSQbind(nt, attributes)
             // replace this tag
             tag.parentNode.replaceChild(nt, tag)
         }
         // TODO: implement class states like in vue js and pass attributes to render function
+    }
+
+    static use(component, attrs) {
+        const instance = new component();
+
+        let attributes = {
+            children: [],
+            _index: -1,
+            idl: {},
+            idg: key => { let u = `JSQC_${JSQuuid()}`; attributes.idl[key] = u; return u },
+            ...attrs
+        }
+
+        instance.once(attributes)
+        let nt = instance.render(attributes)
+        instance.JSQbind(nt.elem, attributes)
+
+        return nt
     }
 }
 // Source: src/components/JSQComponent.js
@@ -85,13 +104,19 @@ class JSQComponent {
     }
 
     JSQbind(tag, attributes) { this.JSQtag = tag; this.JSQattributes = attributes }
-    reload() {
-        JSQCreplaceDifferences(this.JSQtag, this.render(this.JSQattributes).elem)
+    reload(force) {
+        if (force) this.JSQtag = this.render(this.JSQattributes).elem
+        this.JSQtag = JSQCreplaceDifferences(this.JSQtag, this.render(this.JSQattributes).elem)
     }
 
     render(attributes) {
         return $.create('div')
     }
+
+    once() {
+
+    }
+
 }
 
 const JSQCreplaceDifferences = (tag, to) => {
@@ -105,17 +130,20 @@ const JSQCreplaceDifferences = (tag, to) => {
         }
     }
 
+    let temp = tag;
     for (let i = 0; i < to.childNodes.length; ++i) {
 
         // html
         let old = tag.childNodes[i] || null
-        if (old == null) { tag.innerHTML = to.innerHTML; break; }
+        if (old == null) { tag.parentNode.replaceChild(to, tag); return to; }
         else
-            JSQCreplaceDifferences(tag.childNodes[i], to.childNodes[i])
+            temp = JSQCreplaceDifferences(tag.childNodes[i], to.childNodes[i])
 
     }
 
-    if (tag.innerHTML != to.innerHTML) tag.innerHTML = to.innerHTML
+    if (tag.innerHTML != to.innerHTML) { tag.parentNode.replaceChild(to, tag); return to; }
+
+    return temp;
 }
 
 // Source: src/helpers.js
@@ -173,9 +201,14 @@ class JSQQueryElement {
         return this
     }
 
-    click() {
-        this.elem.click()
-        return this
+    click(event) {
+        if (event != undefined) {
+            this.elem.onclick = event
+            return this
+        } else {
+            this.elem.click()
+            return this
+        }
     }
 
     text(value) {
@@ -220,6 +253,8 @@ class JSQQueryElement {
     copy() {
         return new JSQQueryElement($.clone(this.elem, this.elem.tagName))
     }
+
+    get size() { return 1 }
 }
 
 class JSQ extends Function {
@@ -295,6 +330,7 @@ class JSQ extends Function {
             }
         return newTag.elem
     }
+
 }
 
 const $ = new JSQ()

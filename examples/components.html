@@ -2,12 +2,35 @@
 
 <body>
 
-    <myclass>
-
+    <myclass name="World"></myclass>
+    <myclass name="JSQuick">
     </myclass>
 
     <script src="../build/jsquick.min.js"></script>
     <script>
+        class MyClass extends JSQComponent {
+            constructor() {
+                super({
+                    value: 'test',
+                    btnText: 'OK'
+                })
+            }
+
+            render({ name, children, _index }) {
+                let textBox = $.create('input').attr({
+                    placeholder: `Search bar ${_index} ${this.state.value}`
+                }).on('input', () => this.state.btnText = textBox.value());
+                console.log(this.state)
+                return $.create('div')
+                    .add(textBox)
+                    .add($.create('button')
+                        .text(this.state.btnText)
+                        .on('click', () => this.state.value = textBox.value())
+                    )
+            }
+        }
+
+        JSQC.register(MyClass)
 
     </script>
 </body>

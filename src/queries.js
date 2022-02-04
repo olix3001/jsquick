@@ -14,11 +14,19 @@ class JSQQueryElement {
     }
 
     attr(name, val) {
-        this.elem.setAttribute(name, val)
+        if ((typeof name) == 'string')
+            this.elem.setAttribute(name, val)
+        else {
+            for (let key of Object.keys(name)) {
+                this.elem.setAttribute(key, name[key])
+            }
+        }
+
         return this
     }
 
-    add(...elem) {
+    add(elem) {
+        if (elem instanceof JSQQueryElement) elem = [elem]
         for (let e of elem) {
             e = e.elem || e
             this.elem.appendChild(e)
@@ -71,7 +79,7 @@ class JSQQueryElement {
     }
 
     copy() {
-        return new JSQQueryElement($.clone(thie.elem, this.elem.tagName))
+        return new JSQQueryElement($.clone(this.elem, this.elem.tagName))
     }
 }
 
@@ -156,6 +164,10 @@ const $ = new JSQ()
 class JSQQueryElementList {
     constructor(list) {
         this.elements = list;
+    }
+
+    get size() {
+        return this.elements.length
     }
 }
 Object.getOwnPropertyNames(JSQQueryElement.prototype).forEach(t => {

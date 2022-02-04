@@ -37,21 +37,87 @@ class JSQC {
     static register(component) {
         if (!(component.prototype instanceof JSQComponent)) throw 'You can only register a class that extends JSQComponent'
 
-        const instance = new component();
+        const name = component.prototype.constructor.name
 
-        JSQreplaceTags(component.prototype.constructor.name, instance.render()) // TODO: implement class states like in vue js and pass attributes to render function
+        let n = $(name).size
+        for (let i = 0; i < n; ++i) {
+            const instance = new component();
+            let tag = JSQfindTag(name)
+            // get attributes from the tag
+
+            let attributes = {
+                children: tag.childNodes,
+                idl: {},
+                idg: key => { let u = `JSQC_${JSQuuid()}`; attributes.idl[key] = u; return u },
+                _index: i
+            }
+            for (let at of Array.from(tag.attributes)) {
+                attributes[at.name] = at.value
+            }
+
+            let nt = instance.render(attributes).elem;
+            instance.JSQbind(nt, attributes)
+            // replace this tag
+            tag.parentNode.replaceChild(nt, tag)
+        }
+        // TODO: implement class states like in vue js and pass attributes to render function
     }
 }
 // Source: src/components/JSQComponent.js
 class JSQComponent {
     constructor(variables) {
-        this.states = variables || {};
+        let vars = variables || {};
+
+        this.state = {}
+        this.JSQattributes = null
+        this.JSQtag = null
+
+        for (let key of Object.keys(vars)) {
+            Object.defineProperty(this.state, key, {
+                get: () => vars[key],
+                set: val => {
+                    console.log(val)
+                    vars[key] = val
+                    this.reload()
+                }
+            })
+        }
     }
 
-    render() {
+    JSQbind(tag, attributes) { this.JSQtag = tag; this.JSQattributes = attributes }
+    reload() {
+        JSQCreplaceDifferences(this.JSQtag, this.render(this.JSQattributes).elem)
+    }
+
+    render(attributes) {
         return $.create('div')
     }
 }
+
+const JSQCreplaceDifferences = (tag, to) => {
+    // attributes
+    if (tag.attributes && to.attributes) {
+        if (tag.attributes.length != to.attributes.length) JSQcopyAttributes(to, tag)
+        for (let i = 0; i < to.attributes.length; ++i) {
+            if (tag.attributes[i].name != to.attributes[i].name || tag.attributes[i].value != to.attributes[i].value) {
+                JSQcopyAttributes(to, tag)
+            }
+        }
+    }
+
+    for (let i = 0; i < to.childNodes.length; ++i) {
+
+        // html
+        let old = tag.childNodes[i] || null
+        if (old == null) { tag.innerHTML = to.innerHTML; break; }
+        else
+            JSQCreplaceDifferences(tag.childNodes[i], to.childNodes[i])
+
+    }
+
+    if (tag.innerHTML != to.innerHTML) tag.innerHTML = to.innerHTML
+}
+
 // Source: src/helpers.js
 const loadJS = (url, onLoad) => {
     const scriptTag = document.createElement('script')
@@ -87,11 +153,19 @@ class JSQQueryElement {
     }
 
     attr(name, val) {
-        this.elem.setAttribute(name, val)
+        if ((typeof name) == 'string')
+            this.elem.setAttribute(name, val)
+        else {
+            for (let key of Object.keys(name)) {
+                this.elem.setAttribute(key, name[key])
+            }
+        }
+
         return this
     }
 
-    add(...elem) {
+    add(elem) {
+        if (elem instanceof JSQQueryElement) elem = [elem]
         for (let e of elem) {
             e = e.elem || e
             this.elem.appendChild(e)
@@ -144,7 +218,7 @@ class JSQQueryElement {
     }
 
     copy() {
-        return new JSQQueryElement($.clone(thie.elem, this.elem.tagName))
+        return new JSQQueryElement($.clone(this.elem, this.elem.tagName))
     }
 }
 
@@ -229,6 +303,10 @@ const $ = new JSQ()
 class JSQQueryElementList {
     constructor(list) {
         this.elements = list;
+    }
+
+    get size() {
+        return this.elements.length
     }
 }
 Object.getOwnPropertyNames(JSQQueryElement.prototype).forEach(t => {
@@ -351,13 +429,24 @@ const JSQsetClassAttrContent = (className, attr, value) => {
     }
 }
 
-const JSQreplaceTags = (from, to, tag) => {
+const JSQcopyAttributes = (from, to) => {
+    while (to.attributes.length > 0)
+        to.removeAttribute(to.attributes[0].name)
+
+    for (let at of Array.from(from.attributes)) {
+        to.setAttribute(at.name, at.value)
+    }
+}
+
+const JSQfindTag = (search, tag) => {
+    if (search == undefined) return null
     tag = tag || $.body.elem
     for (let cn of tag.childNodes) {
-        JSQreplaceTags(from, to, cn)
+        let temp = JSQfindTag(search, cn)
+        if (temp) return temp
     }
 
-    if (tag.tagName == from.toUpperCase()) {
-        tag.parentNode.replaceChild(to.copy().elem, tag)
+    if (tag.tagName == search.toUpperCase()) {
+        return tag
     }
 }

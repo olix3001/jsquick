@@ -41,13 +41,24 @@ const JSQsetClassAttrContent = (className, attr, value) => {
     }
 }
 
-const JSQreplaceTags = (from, to, tag) => {
+const JSQcopyAttributes = (from, to) => {
+    while (to.attributes.length > 0)
+        to.removeAttribute(to.attributes[0].name)
+
+    for (let at of Array.from(from.attributes)) {
+        to.setAttribute(at.name, at.value)
+    }
+}
+
+const JSQfindTag = (search, tag) => {
+    if (search == undefined) return null
     tag = tag || $.body.elem
     for (let cn of tag.childNodes) {
-        JSQreplaceTags(from, to, cn)
+        let temp = JSQfindTag(search, cn)
+        if (temp) return temp
     }
 
-    if (tag.tagName == from.toUpperCase()) {
-        tag.parentNode.replaceChild(to.copy().elem, tag)
+    if (tag.tagName == search.toUpperCase()) {
+        return tag
     }
 }

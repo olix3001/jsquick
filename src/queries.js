@@ -60,6 +60,15 @@ class JSQQueryElement {
         this.elem.focus()
         return this
     }
+
+    value(val) {
+        if (val == undefined) {
+            return this.elem.value
+        } else {
+            this.elem.value = val
+            return this
+        }
+    }
 }
 
 class JSQ extends Function {

@@ -6,6 +6,6 @@ class JSQC {
 
         const instance = new component();
 
-        JSQreplaceTags(component.prototype.constructor.name, instance.render().elem) // TODO: implement class states like in vue js and pass attributes to render function
+        JSQreplaceTags(component.prototype.constructor.name, instance.render()) // TODO: implement class states like in vue js and pass attributes to render function
     }
 }

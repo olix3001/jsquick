@@ -69,6 +69,10 @@ class JSQQueryElement {
             return this
         }
     }
+
+    copy() {
+        return new JSQQueryElement($.clone(thie.elem, this.elem.tagName))
+    }
 }
 
 class JSQ extends Function {

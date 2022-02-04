@@ -39,7 +39,7 @@ class JSQC {
 
         const instance = new component();
 
-        JSQreplaceTags(component.prototype.constructor.name, instance.render().elem) // TODO: implement class states like in vue js and pass attributes to render function
+        JSQreplaceTags(component.prototype.constructor.name, instance.render()) // TODO: implement class states like in vue js and pass attributes to render function
     }
 }
 // Source: src/components/JSQComponent.js
@@ -141,6 +141,10 @@ class JSQQueryElement {
             this.elem.value = val
             return this
         }
+    }
+
+    copy() {
+        return new JSQQueryElement($.clone(thie.elem, this.elem.tagName))
     }
 }
 
@@ -354,6 +358,6 @@ const JSQreplaceTags = (from, to, tag) => {
     }
 
     if (tag.tagName == from.toUpperCase()) {
-        tag.parentNode.replaceChild(to, tag)
+        tag.parentNode.replaceChild(to.copy().elem, tag)
     }
 }

@@ -48,6 +48,6 @@ const JSQreplaceTags = (from, to, tag) => {
     }
 
     if (tag.tagName == from.toUpperCase()) {
-        tag.parentNode.replaceChild(to, tag)
+        tag.parentNode.replaceChild(to.copy().elem, tag)
     }
 }

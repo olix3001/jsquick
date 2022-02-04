@@ -40,3 +40,14 @@ const JSQsetClassAttrContent = (className, attr, value) => {
         e.setAttribute(attr, value)
     }
 }
+
+const JSQreplaceTags = (from, to, tag) => {
+    tag = tag || $.body.elem
+    for (let cn of tag.childNodes) {
+        JSQreplaceTags(from, to, cn)
+    }
+
+    if (tag.tagName == from.toUpperCase()) {
+        tag.parentNode.replaceChild(to, tag)
+    }
+}

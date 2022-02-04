@@ -30,6 +30,28 @@ const buildTag = (name, options, content) => {
 
     return element
 }
+// Source: src/components/componentManager.js
+class JSQC {
+    constructor() { return null; }
+
+    static register(component) {
+        if (!(component.prototype instanceof JSQComponent)) throw 'You can only register a class that extends JSQComponent'
+
+        const instance = new component();
+
+        JSQreplaceTags(component.prototype.constructor.name, instance.render().elem) // TODO: implement class states like in vue js and pass attributes to render function
+    }
+}
+// Source: src/components/JSQComponent.js
+class JSQComponent {
+    constructor(variables) {
+        this.states = variables || {};
+    }
+
+    render() {
+        return $.create('div')
+    }
+}
 // Source: src/helpers.js
 const loadJS = (url, onLoad) => {
     const scriptTag = document.createElement('script')
@@ -186,6 +208,15 @@ class JSQ extends Function {
     patch(url, body, options) {
         return this.request(url, 'PATCH', body, options)
     }
+
+    clone(tag, name) {
+        let newTag = $.create(name).html(tag.innerHTML)
+        if (tag.attributes)
+            for (let at of Array.from(tag.attributes)) {
+                newTag.attr(at.name, at.value)
+            }
+        return newTag.elem
+    }
 }
 
 const $ = new JSQ()
@@ -313,5 +344,16 @@ const JSQsetClassContent = (className, value) => {
 const JSQsetClassAttrContent = (className, attr, value) => {
     for (let e of document.getElementsByClassName(className)) {
         e.setAttribute(attr, value)
+    }
+}
+
+const JSQreplaceTags = (from, to, tag) => {
+    tag = tag || $.body.elem
+    for (let cn of tag.childNodes) {
+        JSQreplaceTags(from, to, cn)
+    }
+
+    if (tag.tagName == from.toUpperCase()) {
+        tag.parentNode.replaceChild(to, tag)
     }
 }

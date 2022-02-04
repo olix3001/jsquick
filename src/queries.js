@@ -135,6 +135,15 @@ class JSQ extends Function {
     patch(url, body, options) {
         return this.request(url, 'PATCH', body, options)
     }
+
+    clone(tag, name) {
+        let newTag = $.create(name).html(tag.innerHTML)
+        if (tag.attributes)
+            for (let at of Array.from(tag.attributes)) {
+                newTag.attr(at.name, at.value)
+            }
+        return newTag.elem
+    }
 }
 
 const $ = new JSQ()

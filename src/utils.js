@@ -15,8 +15,21 @@ function JSQuuid() { // Public Domain/MIT
 }
 
 const JSQreplaceInDoc = (from, to) => {
-    document.body.innerHTML = document.body.innerHTML.replaceAll(from, to);
+    JSQreplaceInTag(from, to, document.body)
 }
+const JSQreplaceInTag = (from, to, tag) => {
+    for (let cn of tag.childNodes) {
+        JSQreplaceInTag(from, to, cn)
+    }
+
+    if (tag.nodeType == Node.TEXT_NODE) {
+        if (tag.textContent.replace(/\s|\n/g, '') == '') return
+        let replacementNode = $.create('jsq').html(tag.textContent.replaceAll(from, to)).elem
+        tag.parentNode.insertBefore(replacementNode, tag);
+        tag.parentNode.removeChild(tag);
+    }
+}
+
 const JSQsetClassContent = (className, value) => {
     for (let e of document.getElementsByClassName(className)) {
         e.innerHTML = value;

@@ -36,6 +36,11 @@ class JSQQueryElement {
         return this
     }
 
+    html(value) {
+        this.elem.innerHTML = value
+        return this
+    }
+
     addClass(name) {
         this.elem.classList.add(name)
         return this

@@ -4,16 +4,19 @@
 
     <div>
         <h1>Clicked: {{value}} times</h1>
-        <button onclick="onClick()">Click me</button>
+        <button onclick="onClick()" q_style="display: {{visible}}">Click me</button>
     </div>
 
     <script src="../build/jsquick.min.js"></script>
     <script>
         const [getValue, setValue] = bindState('value', 0);
+        const [getVisible, setVisible] = bindAttr('style', 'visible', false, null, v => v ? 'block' : 'none')
 
         function onClick() {
             setValue(getValue() + 1)
         }
+
+        setTimeout(() => setVisible(true), 2000)
     </script>
 
 </body>

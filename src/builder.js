@@ -1,4 +1,10 @@
-function buildTag(name, options, content) {
+const buildTag = (name, options, content) => {
+    if (options == null && content == null) {
+        options = name[1]
+        content = name[2]
+        name = name[0]
+    }
+
     const element = document.createElement(name)
     for (let key of Object.keys(options)) {
 

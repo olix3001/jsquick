@@ -8,13 +8,13 @@
 
     <script src="../build/jsquick.min.js"></script>
     <script>
-        let c = buildTag('div', {}, {
+        let tagTemplate = ['div', {}, {
             textBox: ['input', {
                 placeholder: 'Search...'
             }, ''],
 
             searchButton: ['button', {
-                onclick: () => $.download('test.txt', 'Some text', 'text')
+                onclick: () => $.download('content.txt', $('#textBox').elem.value, 'text')
             }, 'Search'],
 
             div: ['div', {
@@ -24,8 +24,8 @@
                         style: 'color: blue'
                     }, 'TEST']
                 }]
-        })
-        $('body').add(c)
+        }]
+        $.body.add(buildTag(tagTemplate))
     </script>
 </body>
 

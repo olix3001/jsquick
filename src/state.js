@@ -1,25 +1,30 @@
 
 const JSQAttrsMap = {};
 
-const bindState = (name, defaultValue, onChange) => {
+const bindState = (name, defaultValue, onChange, processor) => {
     onChange = onChange || (() => { })
+    processor = processor || (value => value)
     let BID = 'JSQ_' + JSQuuid()
+    defaultValue = processor(defaultValue)
     let binding = `<span class=${BID}>${defaultValue}</span>`
     JSQreplaceInDoc(`{{${name}}}`, binding)
     let stateValue = defaultValue
     return [() => stateValue, (value) => {
-        JSQsetClassContent(BID, value)
-        stateValue = value
-        onChange(value)
+        let val = processor(value)
+        JSQsetClassContent(BID, val)
+        stateValue = val
+        onChange(val)
     }];
 }
 
-const bindAttr = (type, name, defaultValue, onChange) => {
+const bindAttr = (type, name, defaultValue, onChange, processor) => {
     onChange = onChange || (() => { })
+    processor = processor || (value => value)
     let BID = 'JSQ_' + JSQuuid()
     let attrName = `q_${type}`
     let withSel = document.querySelectorAll('[' + attrName + ']')
     let binding = '{{' + name + '}}'
+    defaultValue = processor(defaultValue)
 
     for (let e of withSel) {
         let attr = e.attributes.getNamedItem(attrName)
@@ -31,11 +36,12 @@ const bindAttr = (type, name, defaultValue, onChange) => {
     }
     let attrValue = defaultValue;
     let temp = [() => attrValue, (value) => {
+        let val = processor(value)
         for (let e of document.getElementsByClassName(BID)) {
-            e.setAttribute(type, JSQReplaceAllAttrs(e.attributes.getNamedItem(attrName), attrName, binding, e, value))
+            e.setAttribute(type, JSQReplaceAllAttrs(e.attributes.getNamedItem(attrName), attrName, binding, e, val))
         }
-        attrValue = value
-        onChange(value)
+        attrValue = val
+        onChange(val)
     }]
     JSQAttrsMap[name] = (s) => s.replace(binding, temp[0]());
     return temp;

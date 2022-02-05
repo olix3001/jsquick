@@ -10,7 +10,6 @@ class JSQComponent {
             Object.defineProperty(this.state, key, {
                 get: () => vars[key],
                 set: val => {
-                    console.log(val)
                     vars[key] = val
                     this.reload()
                 }
@@ -20,7 +19,12 @@ class JSQComponent {
 
     JSQbind(tag, attributes) { this.JSQtag = tag; this.JSQattributes = attributes }
     reload(force) {
-        if (force) this.JSQtag = this.render(this.JSQattributes).elem
+        if (force) {
+            let temp = this.render(this.JSQattributes).elem
+            this.JSQtag.parentNode.replaceChild(temp, this.JSQtag)
+            this.JSQtag = temp
+            return
+        }
         this.JSQtag = JSQCreplaceDifferences(this.JSQtag, this.render(this.JSQattributes).elem)
     }
 
@@ -45,18 +49,8 @@ const JSQCreplaceDifferences = (tag, to) => {
         }
     }
 
-    let temp = tag;
-    for (let i = 0; i < to.childNodes.length; ++i) {
-
-        // html
-        let old = tag.childNodes[i] || null
-        if (old == null) { tag.parentNode.replaceChild(to, tag); return to; }
-        else
-            temp = JSQCreplaceDifferences(tag.childNodes[i], to.childNodes[i])
-
-    }
-
+    if (tag.childNodes.length != to.childNodes.length) { tag.parentNode.replaceChild(to, tag); return to; }
     if (tag.innerHTML != to.innerHTML) { tag.parentNode.replaceChild(to, tag); return to; }
 
-    return temp;
+    return tag;
 }
